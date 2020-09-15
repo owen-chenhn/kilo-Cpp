@@ -25,6 +25,9 @@ void enableRawMode() {
     raw.c_oflag &= ~(OPOST);
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     raw.c_cflag |= (CS8);
+    raw.c_cc[VMIN] = 0;
+    raw.c_cc[VTIME] = 1;
+
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
@@ -35,11 +38,13 @@ int main() {
 
     // Read in char one by one until see 'q'
     char c;
+    // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
     while ( (c = getchar()) != 'q' ) {
         if (iscntrl(c)) {
             cout << (int) c << "\r\n";
         }
-        else {
+        else if (c >= 0) {
+            // Ignore EOF (-1, no char read)
             cout << c << "\r\n";    // must use "\r\n" as new line now because OPOST flag is disabled.
         }
     };
