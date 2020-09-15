@@ -21,8 +21,9 @@ void enableRawMode() {
     atexit(disableRawMode);
 
     struct termios raw = orig_termios;
-    raw.c_iflag &= ~(IXON);
-    raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
+    raw.c_iflag &= ~(ICRNL | IXON);
+    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+    raw.c_oflag &= ~(OPOST);
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
@@ -35,10 +36,10 @@ int main() {
     char c;
     while ( (c = getchar()) != 'q' ) {
         if (iscntrl(c)) {
-            cout << (int) c << endl;
+            cout << (int) c << "\r\n";
         }
         else {
-            cout << c << endl;
+            cout << c << "\r\n";    // must use "\r\n" as new line now because OPOST flag is disabled.
         }
     };
     
