@@ -9,6 +9,7 @@
 using namespace std;
 
 
+/* Section: Terminal setup. */
 static struct termios orig_termios;
 
 /* Error handling function. */
@@ -40,6 +41,7 @@ void enableRawMode() {
         die("tcsetattr failed");
 }
 
+/* Section ends: Terminal setup. */
 
 
 
