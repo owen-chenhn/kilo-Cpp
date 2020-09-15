@@ -1,5 +1,6 @@
 /* The main file of kilo in C++ implementation. */
 #include <iostream>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
@@ -31,8 +32,13 @@ int main() {
 
     // Read in char one by one until see 'q'
     char c;
-    while ( (c = getchar()) != EOF && c != 'q' ) {
-        cout << c << endl;
+    while ( (c = getchar()) != 'q' ) {
+        if (iscntrl(c)) {
+            cout << (int) c << endl;
+        }
+        else {
+            cout << c << endl;
+        }
     };
     
     return 0;
