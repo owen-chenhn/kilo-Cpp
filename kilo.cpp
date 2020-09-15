@@ -11,13 +11,21 @@ using namespace std;
 
 static struct termios orig_termios;
 
+/* Error handling function. */
+void die(const char *str) {
+    perror(str);
+    exit(1);
+}
+
 void disableRawMode() {
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+        die("tcsetattr failed");
 }
 
 /* Turn on Raw Mode of terminal. */
 void enableRawMode() {
-    tcgetattr(STDIN_FILENO, &orig_termios);
+    if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) 
+        die("tcgetattr failed");
     atexit(disableRawMode);
 
     struct termios raw = orig_termios;
@@ -28,8 +36,11 @@ void enableRawMode() {
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1;
 
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
+        die("tcsetattr failed");
 }
+
+
 
 
 int main() {
