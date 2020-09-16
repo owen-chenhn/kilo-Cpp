@@ -9,14 +9,7 @@
 using namespace std;
 
 
-/* Section: Input & Output */
-/* Map a lower case letter (e.g, 'q') to its ctrl key (e.g, 'Ctrl-Q'). */
-inline char ctrl_key(char ch) {
-    return ch & 0x1f;
-}
-
-
-/* Section: Terminal setup. */
+/***  Terminal setup  ***/
 static struct termios orig_termios;
 
 /* Error handling function. */
@@ -48,25 +41,48 @@ void enableRawMode() {
         die("tcsetattr failed");
 }
 
-/* Section ends: Terminal setup. */
+
+/***  Input Handling  ***/
+/* Map a lower case letter (e.g, 'q') to its ctrl key (e.g, 'Ctrl-Q'). */
+inline char ctrl_key(char ch) {
+    return ch & 0x1f;
+}
+
+char readKey() {
+    char c;
+    // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
+    while ( (c = getchar()) == EOF ) {}
+    return c;
+}
+
+void editorProcessKeypress() {
+    char c = readKey();
+
+    switch (c) {
+        case 27:    // 'ESC'
+            exit(0);
+            break;
+
+        default:
+            //TODO
+            if (iscntrl(c)) {
+                cout << (int) c << "\r\n";
+            }
+            else {
+                cout << c << "\r\n";
+            }
+    }
+}
 
 
+/***  Init  ***/
 int main() {
     std::cout << "Text editor Kilo - C++ version.\n";
     enableRawMode();
 
-    // Read in char one by one until see 'ESC'
-    char c;
-    // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
-    while ( (c = getchar()) != 27 ) {
-        if (iscntrl(c)) {
-            cout << (int) c << "\r\n";
-        }
-        else if (c >= 0) {
-            // Ignore EOF (-1, no char read)
-            cout << c << "\r\n";    // must use "\r\n" as new line now because OPOST flag is disabled.
-        }
-    };
+    while (true) {
+        editorProcessKeypress();
+    }
     
     return 0;
 }
