@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <termios.h>
 
-using namespace std;
+//using namespace std;
 
 
 /***  Terminal setup  ***/
@@ -66,20 +66,29 @@ void editorProcessKeypress() {
         default:
             //TODO
             if (iscntrl(c)) {
-                cout << (int) c << "\r\n";
+                std::cout << (int) c << "\r\n";
             }
             else {
-                cout << c << "\r\n";
+                std::cout << c << "\r\n";
             }
     }
 }
 
 
+/***  Output Handling  ***/
+void editorRefreshScreen() {
+    // Clear the screen.
+    if ( puts("\x1b[2J") == EOF ) die("refresh screen");
+}
+
+
+
 /***  Init  ***/
 int main() {
-    std::cout << "Text editor Kilo - C++ version.\n";
     enableRawMode();
+    editorRefreshScreen();
 
+    std::cout << "Text editor Kilo - C++ version.\r\n";
     while (true) {
         editorProcessKeypress();
     }
