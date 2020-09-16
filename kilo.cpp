@@ -9,6 +9,13 @@
 using namespace std;
 
 
+/* Section: Input & Output */
+/* Map a lower case letter (e.g, 'q') to its ctrl key (e.g, 'Ctrl-Q'). */
+inline char ctrl_key(char ch) {
+    return ch & 0x1f;
+}
+
+
 /* Section: Terminal setup. */
 static struct termios orig_termios;
 
@@ -44,15 +51,14 @@ void enableRawMode() {
 /* Section ends: Terminal setup. */
 
 
-
 int main() {
     std::cout << "Text editor Kilo - C++ version.\n";
     enableRawMode();
 
-    // Read in char one by one until see 'q'
+    // Read in char one by one until see 'ESC'
     char c;
     // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
-    while ( (c = getchar()) != 'q' ) {
+    while ( (c = getchar()) != 27 ) {
         if (iscntrl(c)) {
             cout << (int) c << "\r\n";
         }
