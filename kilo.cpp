@@ -78,7 +78,8 @@ void editorProcessKeypress() {
 /***  Output Handling  ***/
 void editorRefreshScreen() {
     // Clear the screen.
-    if ( puts("\x1b[2J") == EOF ) die("refresh screen");
+    if ( puts("\x1b[2J") == EOF ) die("clear screen");
+    if ( puts("\x1b[H") == EOF ) die("reposition cursor");
 }
 
 
