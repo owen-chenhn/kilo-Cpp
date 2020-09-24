@@ -109,9 +109,10 @@ void editorProcessKeypress() {
 /***  Output Handling  ***/
 void editorDrawRows() {
     // Draw tilds at the beginning of each row.
-    for (int r = 0; r < config.screenRows; r++) {
+    for (int r = 0; r < config.screenRows - 1; r++) {
         std::cout << "~\r\n";
     }
+    std::cout << "~";
 }
 
 void editorRefreshScreen() {
