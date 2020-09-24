@@ -5,10 +5,22 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 
 /***  Global data  ***/
 struct editorConfig {
     struct termios orig_termios;
+    int screenRows;
+    int screenCols;
+
+    int setWindowSize() {
+        struct winsize ws;
+        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) 
+            return -1;
+        screenRows = ws.ws_row;
+        screenCols = ws.ws_col;
+        return 0;
+    }
 };
 const char *CLEAR_SCREEN = "\x1b[2J";
 const char *REPOS_CURSOR = "\x1b[H";
@@ -97,8 +109,7 @@ void editorProcessKeypress() {
 /***  Output Handling  ***/
 void editorDrawRows() {
     // Draw tilds at the beginning of each row.
-    int max_row = 24;   // Hard-code the max number of rows to 24.
-    for (int r = 0; r < max_row; r++) {
+    for (int r = 0; r < config.screenRows; r++) {
         std::cout << "~\r\n";
     }
 }
@@ -113,8 +124,13 @@ void editorRefreshScreen() {
 
 
 /***  Init  ***/
+void initEditor() {
+    if (config.setWindowSize() == -1) die("setWindowSize");
+}
+
 int main() {
     enableRawMode();
+    initEditor();
     editorRefreshScreen();
 
     std::cout << "Text editor Kilo - C++ version.\r\n";
