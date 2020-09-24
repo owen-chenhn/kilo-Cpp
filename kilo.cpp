@@ -6,13 +6,16 @@
 #include <unistd.h>
 #include <termios.h>
 
-//using namespace std;
+/***  Global data  ***/
+struct editorConfig {
+    struct termios orig_termios;
+};
+const char *CLEAR_SCREEN = "\x1b[2J";
+const char *REPOS_CURSOR = "\x1b[H";
 
 
 /***  Terminal setup  ***/
-static struct termios orig_termios;
-const char *CLEAR_SCREEN = "\x1b[2J";
-const char *REPOS_CURSOR = "\x1b[H";
+static editorConfig config;
 
 // Clear the screen and reposition the cursor.
 void clearScreen() {
@@ -33,17 +36,17 @@ void die(const char *str) {
 }
 
 void disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &config.orig_termios) == -1)
         die("tcsetattr failed");
 }
 
 /* Turn on Raw Mode of terminal. */
 void enableRawMode() {
-    if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) 
+    if (tcgetattr(STDIN_FILENO, &config.orig_termios) == -1) 
         die("tcgetattr failed");
     atexit(disableRawMode);
 
-    struct termios raw = orig_termios;
+    termios raw = config.orig_termios;
     raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
     raw.c_oflag &= ~(OPOST);
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
