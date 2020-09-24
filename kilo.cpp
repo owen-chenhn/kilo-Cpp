@@ -12,8 +12,22 @@
 /***  Terminal setup  ***/
 static struct termios orig_termios;
 
+
+/***  Output Handling  ***/
+const char *CLEAR_SCREEN = "\x1b[2J";
+const char *REPOS_CURSOR = "\x1b[H";
+
+void clearScreen() {
+    // Clear the screen and reposition the cursor.
+    std::cout << CLEAR_SCREEN;
+    std::cout << REPOS_CURSOR;
+}
+
+
 /* Error handling function. */
 void die(const char *str) {
+    clearScreen();
+
     perror(str);
     exit(1);
 }
@@ -60,6 +74,7 @@ void editorProcessKeypress() {
 
     switch (c) {
         case 27:    // 'ESC'
+            clearScreen();
             exit(0);
             break;
 
@@ -75,13 +90,9 @@ void editorProcessKeypress() {
 }
 
 
-/***  Output Handling  ***/
 void editorRefreshScreen() {
-    // Clear the screen.
-    if ( puts("\x1b[2J") == EOF ) die("clear screen");
-    if ( puts("\x1b[H") == EOF ) die("reposition cursor");
+    clearScreen();
 }
-
 
 
 /***  Init  ***/
