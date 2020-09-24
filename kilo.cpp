@@ -11,15 +11,14 @@
 
 /***  Terminal setup  ***/
 static struct termios orig_termios;
-
-
-/***  Output Handling  ***/
 const char *CLEAR_SCREEN = "\x1b[2J";
 const char *REPOS_CURSOR = "\x1b[H";
 
+// Clear the screen and reposition the cursor.
 void clearScreen() {
-    // Clear the screen and reposition the cursor.
     std::cout << CLEAR_SCREEN;
+}
+void reposCursor() {
     std::cout << REPOS_CURSOR;
 }
 
@@ -27,6 +26,7 @@ void clearScreen() {
 /* Error handling function. */
 void die(const char *str) {
     clearScreen();
+    reposCursor();
 
     perror(str);
     exit(1);
@@ -75,6 +75,7 @@ void editorProcessKeypress() {
     switch (c) {
         case 27:    // 'ESC'
             clearScreen();
+            reposCursor();
             exit(0);
             break;
 
@@ -90,8 +91,21 @@ void editorProcessKeypress() {
 }
 
 
+/***  Output Handling  ***/
+void editorDrawRows() {
+    // Draw tilds at the beginning of each row.
+    int max_row = 24;   // Hard-code the max number of rows to 24.
+    for (int r = 0; r < max_row; r++) {
+        std::cout << "~\r\n";
+    }
+}
+
 void editorRefreshScreen() {
     clearScreen();
+    reposCursor();
+
+    editorDrawRows();
+    reposCursor();
 }
 
 
