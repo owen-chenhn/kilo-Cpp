@@ -7,6 +7,9 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
+
+#define CTRL_KEY(c) ((c) & 0x1f)
+
 /***  Global data  ***/
 struct editorConfig {
     struct termios orig_termios;
@@ -72,11 +75,6 @@ void enableRawMode() {
 
 
 /***  Input Handling  ***/
-/* Map a lower case letter (e.g, 'q') to its ctrl key (e.g, 'Ctrl-Q'). */
-inline char ctrl_key(char ch) {
-    return ch & 0x1f;
-}
-
 char readKey() {
     char c;
     // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
@@ -88,7 +86,7 @@ void editorProcessKeypress() {
     char c = readKey();
 
     switch (c) {
-        case 27:    // 'ESC'
+        case CTRL_KEY('q'):    // Ctrl-Q
             clearScreen();
             reposCursor();
             exit(0);
