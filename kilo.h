@@ -25,8 +25,8 @@ class Kilo {
     int screenCols;
 
     // Clear the screen and reposition the cursor.
-    void clearScreen() { std::cout << CLEAR_SCREEN; }
-    void reposCursor() { std::cout << REPOS_CURSOR; }
+    static void clearScreen() { std::cout << CLEAR_SCREEN; }
+    static void reposCursor() { std::cout << REPOS_CURSOR; }
 
     /* Error handling function. */
     void die(const char *str) {

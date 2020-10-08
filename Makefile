@@ -2,7 +2,7 @@
 CC = g++
 CFLAG = -Wall -Wextra -pedantic -std=c++11
 
-kilo: kilo.o main.o
+kilo: kilo.o main.o kilo.h
 	$(CC) main.o kilo.o -o kilo $(CFLAG)
 
 main.o: main.cpp
