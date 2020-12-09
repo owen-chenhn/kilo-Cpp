@@ -68,22 +68,33 @@ int Kilo::readKey() {
     while ( (c = getchar()) == EOF ) {}
     if (c == '\x1b') {
         seq[0] = getchar();
+        seq[1] = getchar();
         if (seq[0] == '[') {
-            seq[1] = getchar();
             if (seq[1] >= '0' && seq[1] <= '9') {
                 seq[2] = getchar();
                 if (seq[2] == '~') {
                     switch (seq[1]) {
-                        case '5': return keyType::PAGE_UP;
-                        case '6': return keyType::PAGE_DOWN;
+                        case '1': return KeyType::KEY_HOME;
+                        case '4': return KeyType::KEY_END;
+                        case '5': return KeyType::PAGE_UP;
+                        case '6': return KeyType::PAGE_DOWN;
+                        case '7': return KeyType::KEY_HOME;
+                        case '8': return KeyType::KEY_END;
                     }
                 }
             }
             switch (seq[1]) {
-                case 'A': return keyType::ARROW_UP;
-                case 'B': return keyType::ARROW_DOWN;
-                case 'C': return keyType::ARROW_RIGHT;
-                case 'D': return keyType::ARROW_LEFT;
+                case 'A': return KeyType::ARROW_UP;
+                case 'B': return KeyType::ARROW_DOWN;
+                case 'C': return KeyType::ARROW_RIGHT;
+                case 'D': return KeyType::ARROW_LEFT;
+                case 'H': return KeyType::KEY_HOME;
+                case 'F': return KeyType::KEY_END;
+            }
+        } else if (seq[0] == 'O') {
+            switch (seq[1]) {
+                case 'H': return KeyType::KEY_HOME;
+                case 'F': return KeyType::KEY_END;
             }
         }
     }
@@ -101,16 +112,21 @@ bool Kilo::processKeypress() {
         flag = false;
         break;
 
-    case ARROW_UP:
-    case ARROW_LEFT:
-    case ARROW_DOWN:
-    case ARROW_RIGHT:
+    case KeyType::ARROW_UP:
+    case KeyType::ARROW_LEFT:
+    case KeyType::ARROW_DOWN:
+    case KeyType::ARROW_RIGHT:
         moveCursor(c);
         break;
-    case PAGE_UP:
-    case PAGE_DOWN:
+    case KeyType::PAGE_UP:
+    case KeyType::PAGE_DOWN:
         // TODO: implement page-up and page-down
         cy = (c == PAGE_UP) ? 0 : screenRows - 1;
+        break;
+    case KeyType::KEY_HOME:
+    case KeyType::KEY_END:
+        // TODO: implement HOME and END key
+        cx = (c == KEY_HOME) ? 0 : screenCols - 1;
         break;
 
     default:

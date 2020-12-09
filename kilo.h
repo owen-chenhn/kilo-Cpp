@@ -17,13 +17,15 @@
  * 
  */
 class Kilo {
-    enum keyType {
+    enum KeyType {
         ARROW_UP = 1000,
         ARROW_LEFT,
         ARROW_DOWN,
         ARROW_RIGHT,
         PAGE_UP,
-        PAGE_DOWN
+        PAGE_DOWN,
+        KEY_HOME,
+        KEY_END
     };
 
     struct termios orig_termios;
