@@ -1,8 +1,34 @@
 /* The implementation file of kilo-cpp. */
 #include "kilo.h"
 
-/***  Global data  ***/
+#define CTRL_KEY(c) ((c) & 0x1f)
 
+// escape sequences to control screen and cursor
+#define CLEAR_SCREEN "\x1b[2J"
+#define REPOS_CURSOR "\x1b[H"
+#define HIDE_CURSOR "\x1b[?25l"
+#define DISPLAY_CURSOR "\x1b[?25h"
+
+// Clear the screen, hide and display cursor, and reposition the cursor.
+static void clearScreen() { std::cout << CLEAR_SCREEN; }
+static void reposCursor() { std::cout << REPOS_CURSOR; }
+// position the cursor to terminal location (x, y)
+static void reposCursor(int x, int y) { 
+    char seqBuf[32];
+    sprintf(seqBuf, "\x1b[%d;%dH", y, x);
+    std::cout << seqBuf;
+}
+static void hideCursor() { std::cout << HIDE_CURSOR; }
+static void displayCursor() { std::cout << DISPLAY_CURSOR; }
+
+
+/***  Error handling  ***/
+void Kilo::die(const char *str) {
+    clearScreen();
+    reposCursor();
+    perror(str);
+    exit(1);
+}
 
 /***  Terminal setup  ***/
 int Kilo::setWindowSize() {
@@ -66,10 +92,20 @@ bool Kilo::processKeypress() {
 /***  Output Handling  ***/
 void Kilo::drawRows() {
     // Draw tilds at the beginning of each row.
-    for (int r = 0; r < screenRows - 1; r++) {
-        std::cout << "~\r\n";
+    std::cout << "Text editor Kilo - C++ version.\r\n";
+    for (int r = 1; r < screenRows; r++) {
+        std::cout << "~";
+        if (r < screenRows - 1) std::cout << "\r\n";
     }
-    std::cout << "~";
+}
+
+void Kilo::refreshScreen() {
+    hideCursor();
+    clearScreen();
+    reposCursor();
+    drawRows();
+    reposCursor();
+    displayCursor();
 }
 
 

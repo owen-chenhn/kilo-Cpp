@@ -13,4 +13,4 @@ kilo.o: kilo.cpp
 
 
 clean:
-	rm *.o kilo
+	rm -rf *.o kilo
