@@ -25,7 +25,6 @@ static void displayCursor() { std::cout << DISPLAY_CURSOR; }
 // welcome message
 static const std::string welcome = "Text editor Kilo - C++ version.";
 
-
 /***  Error handling  ***/
 void Kilo::die(const char *str) {
     clearScreen();
@@ -62,15 +61,26 @@ void Kilo::enableRawMode() {
 
 
 /***  Input Handling  ***/
-char Kilo::readKey() {
+int Kilo::readKey() {
     char c;
     // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
     while ( (c = getchar()) == EOF ) {}
+    if (c == '\x1b') {
+        if (getchar() == '[') {
+            switch (getchar()) {
+                case 'A': return keyType::ARROW_UP;
+                case 'B': return keyType::ARROW_DOWN;
+                case 'C': return keyType::ARROW_RIGHT;
+                case 'D': return keyType::ARROW_LEFT;
+                default : return c;
+            }
+        }
+    }
     return c;
 }
 
 bool Kilo::processKeypress() {
-    char c = readKey();
+    int c = readKey();
     bool flag = true;
 
     switch (c) {
@@ -80,13 +90,21 @@ bool Kilo::processKeypress() {
             flag = false;
             break;
 
+        case ARROW_UP:
+        case ARROW_LEFT:
+        case ARROW_DOWN:
+        case ARROW_RIGHT:
+            moveCursor(c);
+            break;
+
         default:
             //TODO
             if (iscntrl(c)) {
-                std::cout << (int) c << " ";
+                std::cout << c << " ";
             }
             else {
-                std::cout << c;
+                std::cout << (char) c;
+                cx++;
             }
     }
     return flag;
@@ -120,6 +138,16 @@ void Kilo::refreshScreen() {
     drawRows();
     reposCursor();
     displayCursor();
+}
+
+void Kilo::moveCursor(int direction) {
+    switch (direction) {
+        case ARROW_UP: cy--; break;
+        case ARROW_LEFT: cx--; break;
+        case ARROW_DOWN: cy++; break;
+        case ARROW_RIGHT: cx++; break;
+    }
+    reposCursor(cx, cy);
 }
 
 

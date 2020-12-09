@@ -17,6 +17,13 @@
  * 
  */
 class Kilo {
+    enum keyType {
+        ARROW_UP = 1000,
+        ARROW_LEFT,
+        ARROW_DOWN,
+        ARROW_RIGHT
+    };
+
     struct termios orig_termios;
     int screenRows;
     int screenCols;
@@ -38,12 +45,13 @@ class Kilo {
     }
 
     /***  Input Handling  ***/
-    char readKey();
+    int  readKey();
     bool processKeypress();
 
     /***  Output Handling  ***/
     void drawRows();
     void refreshScreen();
+    void moveCursor(int);
 
 
 public:
