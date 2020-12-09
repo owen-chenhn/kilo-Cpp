@@ -16,7 +16,7 @@ static void reposCursor() { std::cout << REPOS_CURSOR; }
 // position the cursor to terminal location (x, y)
 static void reposCursor(int x, int y) { 
     char seqBuf[32];
-    sprintf(seqBuf, "\x1b[%d;%dH", y, x);
+    sprintf(seqBuf, "\x1b[%d;%dH", y+1, x+1);
     std::cout << seqBuf;
 }
 static void hideCursor() { std::cout << HIDE_CURSOR; }
@@ -104,8 +104,13 @@ bool Kilo::processKeypress() {
             }
             else {
                 std::cout << (char) c;
-                cx++;
             }
+            cx++;
+            if (cx == screenCols) {
+                cy++;
+                cx = 0;
+            }
+            
     }
     return flag;
 }
@@ -142,10 +147,26 @@ void Kilo::refreshScreen() {
 
 void Kilo::moveCursor(int direction) {
     switch (direction) {
-        case ARROW_UP: cy--; break;
-        case ARROW_LEFT: cx--; break;
-        case ARROW_DOWN: cy++; break;
-        case ARROW_RIGHT: cx++; break;
+        case ARROW_UP: {
+            if (cy > 0)
+                cy--; 
+            break;
+        }
+        case ARROW_LEFT: {
+            if (cx > 0)
+                cx--; 
+            break;
+        }
+        case ARROW_DOWN: {
+            if (cy < screenRows - 1)
+                cy++; 
+            break;
+        }
+        case ARROW_RIGHT: {
+            if (cx < screenCols - 1)
+                cx++; 
+            break;
+        }
     }
     reposCursor(cx, cy);
 }
