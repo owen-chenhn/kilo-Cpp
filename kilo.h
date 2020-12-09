@@ -25,7 +25,8 @@ class Kilo {
         PAGE_UP,
         PAGE_DOWN,
         KEY_HOME,
-        KEY_END
+        KEY_END,
+        KEY_DELETE
     };
 
     struct termios orig_termios;

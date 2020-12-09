@@ -75,6 +75,7 @@ int Kilo::readKey() {
                 if (seq[2] == '~') {
                     switch (seq[1]) {
                         case '1': return KeyType::KEY_HOME;
+                        case '3': return KeyType::KEY_DELETE;
                         case '4': return KeyType::KEY_END;
                         case '5': return KeyType::PAGE_UP;
                         case '6': return KeyType::PAGE_DOWN;
@@ -127,6 +128,11 @@ bool Kilo::processKeypress() {
     case KeyType::KEY_END:
         // TODO: implement HOME and END key
         cx = (c == KEY_HOME) ? 0 : screenCols - 1;
+        break;
+    case KeyType::KEY_DELETE:
+    case 127:
+        // TODO: implement DELETE key
+        moveCursor(ARROW_LEFT);
         break;
 
     default:
