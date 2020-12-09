@@ -21,7 +21,9 @@ class Kilo {
         ARROW_UP = 1000,
         ARROW_LEFT,
         ARROW_DOWN,
-        ARROW_RIGHT
+        ARROW_RIGHT,
+        PAGE_UP,
+        PAGE_DOWN
     };
 
     struct termios orig_termios;

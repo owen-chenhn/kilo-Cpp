@@ -63,16 +63,27 @@ void Kilo::enableRawMode() {
 /***  Input Handling  ***/
 int Kilo::readKey() {
     char c;
+    char seq[3];
     // Read input every 0.1 sec. Return -1 (EOF) to c if no char is read. 
     while ( (c = getchar()) == EOF ) {}
     if (c == '\x1b') {
-        if (getchar() == '[') {
-            switch (getchar()) {
+        seq[0] = getchar();
+        if (seq[0] == '[') {
+            seq[1] = getchar();
+            if (seq[1] >= '0' && seq[1] <= '9') {
+                seq[2] = getchar();
+                if (seq[2] == '~') {
+                    switch (seq[1]) {
+                        case '5': return keyType::PAGE_UP;
+                        case '6': return keyType::PAGE_DOWN;
+                    }
+                }
+            }
+            switch (seq[1]) {
                 case 'A': return keyType::ARROW_UP;
                 case 'B': return keyType::ARROW_DOWN;
                 case 'C': return keyType::ARROW_RIGHT;
                 case 'D': return keyType::ARROW_LEFT;
-                default : return c;
             }
         }
     }
@@ -84,37 +95,67 @@ bool Kilo::processKeypress() {
     bool flag = true;
 
     switch (c) {
-        case CTRL_KEY('q'):    // Ctrl-Q
-            clearScreen();
-            reposCursor();
-            flag = false;
-            break;
+    case CTRL_KEY('q'):    // Ctrl-Q
+        clearScreen();
+        cx = cy = 0;
+        flag = false;
+        break;
 
-        case ARROW_UP:
-        case ARROW_LEFT:
-        case ARROW_DOWN:
-        case ARROW_RIGHT:
-            moveCursor(c);
-            break;
+    case ARROW_UP:
+    case ARROW_LEFT:
+    case ARROW_DOWN:
+    case ARROW_RIGHT:
+        moveCursor(c);
+        break;
+    case PAGE_UP:
+    case PAGE_DOWN:
+        // TODO: implement page-up and page-down
+        cy = (c == PAGE_UP) ? 0 : screenRows - 1;
+        break;
 
-        default:
-            //TODO
-            if (iscntrl(c)) {
-                std::cout << c << " ";
-            }
-            else {
-                std::cout << (char) c;
-            }
-            cx++;
-            if (cx == screenCols) {
-                cy++;
-                cx = 0;
-            }
-            
+    default:
+        //TODO
+        if (iscntrl(c)) {
+            std::cout << c << " ";
+        }
+        else {
+            std::cout << (char) c;
+        }
+        cx++;
+        if (cx == screenCols) {
+            cy++;
+            cx = 0;
+        }
     }
+
+    reposCursor(cx, cy);
     return flag;
 }
 
+void Kilo::moveCursor(int direction) {
+    switch (direction) {
+        case ARROW_UP: {
+            if (cy > 0)
+                cy--; 
+            break;
+        }
+        case ARROW_LEFT: {
+            if (cx > 0)
+                cx--; 
+            break;
+        }
+        case ARROW_DOWN: {
+            if (cy < screenRows - 1)
+                cy++; 
+            break;
+        }
+        case ARROW_RIGHT: {
+            if (cx < screenCols - 1)
+                cx++; 
+            break;
+        }
+    }
+}
 
 /***  Output Handling  ***/
 void Kilo::drawRows() {
@@ -144,33 +185,6 @@ void Kilo::refreshScreen() {
     reposCursor();
     displayCursor();
 }
-
-void Kilo::moveCursor(int direction) {
-    switch (direction) {
-        case ARROW_UP: {
-            if (cy > 0)
-                cy--; 
-            break;
-        }
-        case ARROW_LEFT: {
-            if (cx > 0)
-                cx--; 
-            break;
-        }
-        case ARROW_DOWN: {
-            if (cy < screenRows - 1)
-                cy++; 
-            break;
-        }
-        case ARROW_RIGHT: {
-            if (cx < screenCols - 1)
-                cx++; 
-            break;
-        }
-    }
-    reposCursor(cx, cy);
-}
-
 
 /***  Public interface  ***/
 void Kilo::run() {
