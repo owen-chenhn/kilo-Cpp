@@ -2,11 +2,6 @@
 #include "kilo.h"
 
 /***  Global data  ***/
-const char *Kilo::CLEAR_SCREEN = "\x1b[2J";
-const char *Kilo::REPOS_CURSOR = "\x1b[H";
-const char *Kilo::HIDE_CURSOR = "\x1b[?25l";
-const char *Kilo::DISPLAY_CURSOR = "\x1b[?25h";
-
 
 
 /***  Terminal setup  ***/

@@ -12,17 +12,17 @@
 
 #define CTRL_KEY(c) ((c) & 0x1f)
 
+// escape sequences to control screen and cursor
+#define CLEAR_SCREEN "\x1b[2J"
+#define REPOS_CURSOR "\x1b[H"
+#define HIDE_CURSOR "\x1b[?25l"
+#define DISPLAY_CURSOR "\x1b[?25h"
+
 /** 
  *  The main class of the editor. 
  * 
  */
 class Kilo {
-    // escape sequences to control screen and cursor
-    static const char *CLEAR_SCREEN;
-    static const char *REPOS_CURSOR;
-    static const char *HIDE_CURSOR;
-    static const char *DISPLAY_CURSOR;
-
     struct termios orig_termios;
     int screenRows;
     int screenCols;
