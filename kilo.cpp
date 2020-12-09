@@ -1,5 +1,6 @@
 /* The implementation file of kilo-cpp. */
 #include "kilo.h"
+#include <string>
 
 #define CTRL_KEY(c) ((c) & 0x1f)
 
@@ -20,6 +21,9 @@ static void reposCursor(int x, int y) {
 }
 static void hideCursor() { std::cout << HIDE_CURSOR; }
 static void displayCursor() { std::cout << DISPLAY_CURSOR; }
+
+// welcome message
+static const std::string welcome = "Text editor Kilo - C++ version.";
 
 
 /***  Error handling  ***/
@@ -92,9 +96,19 @@ bool Kilo::processKeypress() {
 /***  Output Handling  ***/
 void Kilo::drawRows() {
     // Draw tilds at the beginning of each row.
-    std::cout << "Text editor Kilo - C++ version.\r\n";
-    for (int r = 1; r < screenRows; r++) {
-        std::cout << "~";
+    for (int r = 0; r < screenRows; r++) {
+        if (r == screenRows / 3) {
+            // Welcome message
+            int padding = (screenCols - welcome.length()) / 2;
+            if (padding) {
+                std::cout << "~";
+                padding--;
+            }
+            while (padding--) std::cout << " ";
+            std::cout << "Text editor Kilo - C++ version.";
+        }
+        else 
+            std::cout << "~";
         if (r < screenRows - 1) std::cout << "\r\n";
     }
 }
