@@ -17,16 +17,21 @@
  * 
  */
 class Kilo {
+    // escape sequences to control screen and cursor
     static const char *CLEAR_SCREEN;
     static const char *REPOS_CURSOR;
+    static const char *HIDE_CURSOR;
+    static const char *DISPLAY_CURSOR;
 
     struct termios orig_termios;
     int screenRows;
     int screenCols;
 
-    // Clear the screen and reposition the cursor.
+    // Clear the screen, hide and display cursor, and reposition the cursor.
     static void clearScreen() { std::cout << CLEAR_SCREEN; }
     static void reposCursor() { std::cout << REPOS_CURSOR; }
+    static void hideCursor() { std::cout << HIDE_CURSOR; }
+    static void displayCursor() { std::cout << DISPLAY_CURSOR; }
 
     /* Error handling function. */
     void die(const char *str) {
@@ -53,10 +58,12 @@ class Kilo {
     /***  Output Handling  ***/
     void drawRows();
     void refreshScreen() {
+        hideCursor();
         clearScreen();
         reposCursor();
         drawRows();
         reposCursor();
+        displayCursor();
     }
 
 
