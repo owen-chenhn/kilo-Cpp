@@ -1,6 +1,10 @@
 /* The implementation file of kilo-cpp. */
 #include "kilo.h"
-#include <string>
+#include <fstream>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <sys/ioctl.h>
 
 #define CTRL_KEY(c) ((c) & 0x1f)
 
@@ -188,7 +192,7 @@ void Kilo::drawRows() {
     for (int r = 0; r < screenRows; r++) {
         if (r < numRows) {
             std::cout << row;
-        } else if (r == screenRows / 3) {
+        } else if (r == screenRows / 3 && numRows == 0) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
             if (padding) {
@@ -216,23 +220,28 @@ void Kilo::refreshScreen() {
 
 
 /***  File IO  ***/
-void Kilo::openFile() {
-    row = "Hello World!";
+void Kilo::openFile(std::string& fileName) {
+    std::ifstream infile(fileName);
+    if (!infile.is_open()) { die("open file failed"); }
+
+    std::getline(infile, row);
     numRows = 1;
+    infile.close();
 }
 
 
 /***  Public interface  ***/
-Kilo::Kilo() {
+Kilo::Kilo(std::string& file) {
     cx = cy = 0;
     numRows = 0;
     enableRawMode();
     if (setWindowSize() == -1) die("setWindowSize");
     
-    openFile();
-    refreshScreen();
+    if (file.length() > 0)
+        openFile(file);
 }
 
 void Kilo::run() {
+    refreshScreen();
     while ( processKeypress() ) ;
 }

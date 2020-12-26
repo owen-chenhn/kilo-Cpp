@@ -6,12 +6,8 @@
  */
 #include <string>
 #include <iostream>
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
 #include <unistd.h>
 #include <termios.h>
-#include <sys/ioctl.h>
 
 /** 
  *  The main class of the editor. 
@@ -69,10 +65,10 @@ class Kilo {
 
 
     /***  File IO  ***/
-    void openFile();
+    void openFile(std::string& fileName);
 
 public:
-    Kilo();
+    Kilo(std::string& file);
     virtual ~Kilo() { disableRawMode(); }
 
     void run();
