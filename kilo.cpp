@@ -38,6 +38,7 @@ static const std::string welcome = "Text editor Kilo - C++ version.";
 void Kilo::die(const char *str) {
     clearScreen();
     reposCursor();
+    disableRawMode();
     perror(str);
     exit(1);
 }
@@ -226,7 +227,7 @@ void Kilo::refreshScreen() {
 /***  File IO  ***/
 void Kilo::openFile(std::string& fileName) {
     std::ifstream infile(fileName);
-    if (!infile.is_open()) { die("open file failed"); }
+    if (!infile.is_open()) { die("file open failed"); }
 
     std::getline(infile, row);
     numRows = 1;
