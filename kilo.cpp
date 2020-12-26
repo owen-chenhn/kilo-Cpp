@@ -25,6 +25,7 @@ static void displayCursor() { std::cout << DISPLAY_CURSOR; }
 // welcome message
 static const std::string welcome = "Text editor Kilo - C++ version.";
 
+
 /***  Error handling  ***/
 void Kilo::die(const char *str) {
     clearScreen();
@@ -32,6 +33,7 @@ void Kilo::die(const char *str) {
     perror(str);
     exit(1);
 }
+
 
 /***  Terminal setup  ***/
 int Kilo::setWindowSize() {
@@ -179,11 +181,14 @@ void Kilo::moveCursor(int direction) {
     }
 }
 
+
 /***  Output Handling  ***/
 void Kilo::drawRows() {
     // Draw tilds at the beginning of each row.
     for (int r = 0; r < screenRows; r++) {
-        if (r == screenRows / 3) {
+        if (r < numRows) {
+            std::cout << row;
+        } else if (r == screenRows / 3) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
             if (padding) {
@@ -192,9 +197,10 @@ void Kilo::drawRows() {
             }
             while (padding--) std::cout << " ";
             std::cout << "Text editor Kilo - C++ version.";
-        }
-        else 
+        } else {
             std::cout << "~";
+        }
+            
         if (r < screenRows - 1) std::cout << "\r\n";
     }
 }
@@ -208,7 +214,25 @@ void Kilo::refreshScreen() {
     displayCursor();
 }
 
+
+/***  File IO  ***/
+void Kilo::openFile() {
+    row = "Hello World!";
+    numRows = 1;
+}
+
+
 /***  Public interface  ***/
+Kilo::Kilo() {
+    cx = cy = 0;
+    numRows = 0;
+    enableRawMode();
+    if (setWindowSize() == -1) die("setWindowSize");
+    
+    openFile();
+    refreshScreen();
+}
+
 void Kilo::run() {
     while ( processKeypress() ) ;
 }

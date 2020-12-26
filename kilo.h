@@ -4,6 +4,7 @@
  *  The header file of Kilo class. 
  * 
  */
+#include <string>
 #include <iostream>
 #include <cctype>
 #include <cstdio>
@@ -35,13 +36,19 @@ class Kilo {
 
     // Current position of the cursor. x: horizontal position, y: vertical position. 
     int cx, cy;    
+    // Info about a row of text data
+    int numRows;
+    std::string row;        // content of a row
 
-    /* Error handling function. */
+
+    /*** Error handling function. ***/
     void die(const char *str);
+
 
     /***  Terminal setup  ***/
     int setWindowSize();
-    
+
+
     // Turn on/off Raw Mode of terminal.
     void enableRawMode();
     void disableRawMode() {
@@ -49,9 +56,11 @@ class Kilo {
             die("tcsetattr failed");
     }
 
+
     /***  Input Handling  ***/
     int  readKey();
     bool processKeypress();
+
 
     /***  Output Handling  ***/
     void drawRows();
@@ -59,14 +68,11 @@ class Kilo {
     void moveCursor(int);
 
 
+    /***  File IO  ***/
+    void openFile();
+
 public:
-    // Constructor and destructor
-    Kilo() {
-        cx = cy = 0;
-        enableRawMode();
-        if (setWindowSize() == -1) die("setWindowSize");
-        refreshScreen();
-    }
+    Kilo();
     virtual ~Kilo() { disableRawMode(); }
 
     void run();
