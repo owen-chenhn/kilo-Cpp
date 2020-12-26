@@ -1,4 +1,8 @@
 /* The implementation file of kilo-cpp. */
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE  // feature test macros
+
 #include "kilo.h"
 #include <fstream>
 #include <cctype>
