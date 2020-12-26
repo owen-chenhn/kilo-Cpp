@@ -8,6 +8,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <termios.h>
+#include <vector>
 
 /** 
  *  The main class of the editor. 
@@ -34,7 +35,7 @@ class Kilo {
     int cx, cy;    
     // Info about a row of text data
     int numRows;
-    std::string row;        // content of a row
+    std::vector<std::string> rows;        // content of text
 
 
     /*** Error handling function. ***/

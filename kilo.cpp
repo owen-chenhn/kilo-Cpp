@@ -196,7 +196,7 @@ void Kilo::drawRows() {
     // Draw tilds at the beginning of each row.
     for (int r = 0; r < screenRows; r++) {
         if (r < numRows) {
-            std::cout << row;
+            std::cout << rows[r];
         } else if (r == screenRows / 3 && numRows == 0) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
@@ -229,8 +229,11 @@ void Kilo::openFile(std::string& fileName) {
     std::ifstream infile(fileName);
     if (!infile.is_open()) { die("file open failed"); }
 
-    std::getline(infile, row);
-    numRows = 1;
+    std::string row;
+    while (std::getline(infile, row)) {
+        rows.push_back(row);
+        numRows++;
+    }
     infile.close();
 }
 
