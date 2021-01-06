@@ -128,9 +128,14 @@ bool Kilo::processKeypress() {
         moveCursor(c);
         break;
     case KeyType::PAGE_UP:
+        cy = max((cy - screenRows + 1), 0);
+        rowOffset = max((rowOffset - screenRows + 1), 0);
+        refreshScreen();
+        break;
     case KeyType::PAGE_DOWN:
-        // TODO: implement page-up and page-down
-        cy = (c == PAGE_UP) ? 0 : screenRows - 1;
+        cy = min((cy + screenRows - 1), numRows);
+        rowOffset = min((rowOffset + screenRows - 1), (numRows - screenRows + 1));
+        refreshScreen();
         break;
     case KeyType::KEY_HOME:
     case KeyType::KEY_END:
