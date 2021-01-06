@@ -63,6 +63,8 @@ class Kilo {
     bool processKeypress();
     bool scroll();
 
+    int getRowLen() { return (cy < numRows) ? rows[cy].length() : 0; }
+
 
     /***  Output Handling  ***/
     void reposCursor();

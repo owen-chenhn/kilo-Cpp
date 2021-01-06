@@ -181,12 +181,16 @@ void Kilo::moveCursor(int direction) {
             break;
         }
         case ARROW_RIGHT: {
-            int len = (cy < numRows) ? rows[cy].length() : 0;
+            int len = getRowLen();
             if (cx < len)
                 cx++; 
             break;
         }
     }
+
+    int len = getRowLen();
+    if (cx > len) 
+        cx = len;
 }
 
 bool Kilo::scroll() {
