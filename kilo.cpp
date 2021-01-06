@@ -18,17 +18,14 @@
 #define HIDE_CURSOR "\x1b[?25l"
 #define DISPLAY_CURSOR "\x1b[?25h"
 
+// helper functions
+static inline int min(int a, int b) { return a < b ? a : b; }
+static inline int max(int a, int b) { return a > b ? a : b; }
+
 // Clear the screen, hide and display cursor, and reposition the cursor.
-static void clearScreen() { std::cout << CLEAR_SCREEN; }
-static void reposCursor() { std::cout << REPOS_CURSOR; }
-// position the cursor to terminal location (x, y)
-static void reposCursor(int x, int y) { 
-    char seqBuf[32];
-    sprintf(seqBuf, "\x1b[%d;%dH", y+1, x+1);
-    std::cout << seqBuf;
-}
-static void hideCursor() { std::cout << HIDE_CURSOR; }
-static void displayCursor() { std::cout << DISPLAY_CURSOR; }
+static inline void clearScreen() { std::cout << CLEAR_SCREEN; }
+static inline void hideCursor() { std::cout << HIDE_CURSOR; }
+static inline void displayCursor() { std::cout << DISPLAY_CURSOR; }
 
 // welcome message
 static const std::string welcome = "Text editor Kilo - C++ version.";
@@ -161,7 +158,8 @@ bool Kilo::processKeypress() {
         }
     }
 
-    reposCursor(cx, cy);
+    if (!scroll())
+        reposCursor(cx, cy);
     return flag;
 }
 
@@ -178,7 +176,7 @@ void Kilo::moveCursor(int direction) {
             break;
         }
         case ARROW_DOWN: {
-            if (cy < screenRows - 1)
+            if (cy < numRows)
                 cy++; 
             break;
         }
@@ -190,13 +188,39 @@ void Kilo::moveCursor(int direction) {
     }
 }
 
+bool Kilo::scroll() {
+    bool flag = false;
+    if (cy < rowOffset) {
+        rowOffset = cy;
+        flag = true;
+    }
+    if (cy >= rowOffset + screenRows) {
+        rowOffset = cy - screenRows + 1;
+        flag = true;
+    }
+
+    if (flag) refreshScreen();
+    return flag;
+}
+
 
 /***  Output Handling  ***/
+void inline Kilo::reposCursor() { std::cout << REPOS_CURSOR; }  // position the cursor to the upper-left corner of the terminal.
+
+void inline Kilo::reposCursor(int x, int y) { 
+    // position the cursor to terminal location (x, y)
+    char seqBuf[32];
+    sprintf(seqBuf, "\x1b[%d;%dH", y-rowOffset+1, x+1);
+    std::cout << seqBuf;
+}
+
 void Kilo::drawRows() {
     // Draw tilds at the beginning of each row.
     for (int r = 0; r < screenRows; r++) {
-        if (r < numRows) {
-            std::cout << rows[r];
+        int row = r + rowOffset;
+        if (row < numRows) {
+            int len = min(rows[row].length(), screenCols); 
+            std::cout << rows[row].substr(0, len);
         } else if (r == screenRows / 3 && numRows == 0) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
@@ -219,7 +243,7 @@ void Kilo::refreshScreen() {
     clearScreen();
     reposCursor();
     drawRows();
-    reposCursor();
+    reposCursor(cx, cy);
     displayCursor();
 }
 
@@ -242,6 +266,7 @@ void Kilo::openFile(std::string& fileName) {
 Kilo::Kilo(std::string& file) {
     cx = cy = 0;
     numRows = 0;
+    rowOffset = 0;
     enableRawMode();
     if (setWindowSize() == -1) die("setWindowSize");
     

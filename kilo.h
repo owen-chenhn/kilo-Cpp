@@ -33,7 +33,9 @@ class Kilo {
 
     // Current position of the cursor. x: horizontal position, y: vertical position. 
     int cx, cy;    
-    // Info about a row of text data
+
+    int rowOffset;    // row offset of the current display window. 
+    // text data
     int numRows;
     std::vector<std::string> rows;        // content of text
 
@@ -57,9 +59,12 @@ class Kilo {
     /***  Input Handling  ***/
     int  readKey();
     bool processKeypress();
+    bool scroll();
 
 
     /***  Output Handling  ***/
+    void reposCursor();
+    void reposCursor(int x, int y);
     void drawRows();
     void refreshScreen();
     void moveCursor(int);
