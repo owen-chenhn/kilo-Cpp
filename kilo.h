@@ -31,10 +31,12 @@ class Kilo {
     int screenRows;
     int screenCols;
 
-    // Current position of the cursor. x: horizontal position, y: vertical position. 
+    // Current position of the cursor in the entire file. 
+    // x: horizontal position, y: vertical position. 
     int cx, cy;    
 
-    int rowOffset;    // row offset of the current display window. 
+    int rowOffset;    // row offset of the current display window.
+    int colOffset; 
     // text data
     int numRows;
     std::vector<std::string> rows;        // content of text

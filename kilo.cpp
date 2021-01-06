@@ -181,7 +181,8 @@ void Kilo::moveCursor(int direction) {
             break;
         }
         case ARROW_RIGHT: {
-            if (cx < screenCols - 1)
+            int len = (cy < numRows) ? rows[cy].length() : 0;
+            if (cx < len)
                 cx++; 
             break;
         }
@@ -189,14 +190,18 @@ void Kilo::moveCursor(int direction) {
 }
 
 bool Kilo::scroll() {
-    bool flag = false;
+    bool flag = true;
     if (cy < rowOffset) {
         rowOffset = cy;
-        flag = true;
-    }
-    if (cy >= rowOffset + screenRows) {
+    } else if (cy >= rowOffset + screenRows) {
         rowOffset = cy - screenRows + 1;
-        flag = true;
+    } else if (cx < colOffset) {
+        colOffset = cx;
+    } else if (cx >= colOffset + screenCols) {
+        colOffset = cx - screenCols + 1;
+    } else {
+        // no scroll
+        flag = false;
     }
 
     if (flag) refreshScreen();
@@ -210,7 +215,7 @@ void inline Kilo::reposCursor() { std::cout << REPOS_CURSOR; }  // position the 
 void inline Kilo::reposCursor(int x, int y) { 
     // position the cursor to terminal location (x, y)
     char seqBuf[32];
-    sprintf(seqBuf, "\x1b[%d;%dH", y-rowOffset+1, x+1);
+    sprintf(seqBuf, "\x1b[%d;%dH", y-rowOffset+1, x-colOffset+1);
     std::cout << seqBuf;
 }
 
@@ -219,8 +224,8 @@ void Kilo::drawRows() {
     for (int r = 0; r < screenRows; r++) {
         int row = r + rowOffset;
         if (row < numRows) {
-            int len = min(rows[row].length(), screenCols); 
-            std::cout << rows[row].substr(0, len);
+            int len = rows[row].length();
+            std::cout << rows[row].substr(min(colOffset, len), screenCols);
         } else if (r == screenRows / 3 && numRows == 0) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
@@ -266,7 +271,7 @@ void Kilo::openFile(std::string& fileName) {
 Kilo::Kilo(std::string& file) {
     cx = cy = 0;
     numRows = 0;
-    rowOffset = 0;
+    rowOffset = colOffset = 0;
     enableRawMode();
     if (setWindowSize() == -1) die("setWindowSize");
     
