@@ -171,8 +171,12 @@ void Kilo::moveCursor(int direction) {
             break;
         }
         case ARROW_LEFT: {
-            if (cx > 0)
+            if (cx > 0) {
                 cx--; 
+            } else if (cy > 0) {
+                cy--;
+                cx = rows[cy].length();
+            }
             break;
         }
         case ARROW_DOWN: {
@@ -182,8 +186,12 @@ void Kilo::moveCursor(int direction) {
         }
         case ARROW_RIGHT: {
             int len = getRowLen();
-            if (cx < len)
+            if (cx < len) {
                 cx++; 
+            } else if (cy < numRows) {
+                cy++;
+                cx = 0;
+            }
             break;
         }
     }
