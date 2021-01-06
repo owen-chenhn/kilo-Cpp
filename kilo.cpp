@@ -140,7 +140,7 @@ bool Kilo::processKeypress() {
     case KeyType::KEY_HOME:
     case KeyType::KEY_END:
         // TODO: implement HOME and END key
-        cx = (c == KEY_HOME) ? 0 : screenCols - 1;
+        cx = (c == KEY_HOME) ? 0 : getRowLen();
         break;
     case KeyType::KEY_DELETE:
     case 127:
