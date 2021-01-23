@@ -5,12 +5,14 @@
 
 #include "kilo.h"
 #include <fstream>
+#include <algorithm>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/ioctl.h>
 
 #define CTRL_KEY(c) ((c) & 0x1f)
+#define TAB_SIZE 8
 
 // escape sequences to control screen and cursor
 #define CLEAR_SCREEN "\x1b[2J"
@@ -269,10 +271,22 @@ void Kilo::refreshScreen() {
     displayCursor();
 }
 
+
 /***  Row Operations  ***/
 std::string renderRow(std::string& row) {
-    // get the render of input row
-    return row;
+    // Render tabs as multiple space characters.
+    unsigned tabs = std::count(row.begin(), row.end(), '\t');
+
+    std::string render;
+    for (char c : row) {
+        if (c == '\t') {    // render tabs as multiple space chars
+            render += std::string(8-(render.length() % 8), ' ');
+        } else {
+            render += c;
+        }
+    }
+
+    return render;
 }
 
 
