@@ -19,6 +19,8 @@
 #define REPOS_CURSOR "\x1b[H"
 #define HIDE_CURSOR "\x1b[?25l"
 #define DISPLAY_CURSOR "\x1b[?25h"
+#define INVERT_COLOR "\x1b[7m"
+#define RESUME_COLOR "\x1b[m"
 
 // helper functions
 static inline int min(int a, int b) { return a < b ? a : b; }
@@ -48,7 +50,7 @@ int Kilo::setWindowSize() {
     struct winsize ws;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) 
         return -1;
-    screenRows = ws.ws_row;
+    screenRows = ws.ws_row - 1;
     screenCols = ws.ws_col;
     return 0;
 }
@@ -270,8 +272,17 @@ void Kilo::drawRows() {
             std::cout << "~";
         }
             
-        if (r < screenRows - 1) std::cout << "\r\n";
+        std::cout << "\r\n";
     }
+}
+
+void Kilo::drawStatusBar() {
+    std::cout << INVERT_COLOR;
+
+    // draw status bar
+    std::cout << std::string(screenCols, ' ');
+
+    std::cout << RESUME_COLOR;
 }
 
 void Kilo::refreshScreen() {
@@ -279,6 +290,7 @@ void Kilo::refreshScreen() {
     clearScreen();
     reposCursor();
     drawRows();
+    drawStatusBar();
     reposCursor(rx, cy);
     displayCursor();
 }
