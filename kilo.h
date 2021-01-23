@@ -40,6 +40,7 @@ class Kilo {
     // text data
     int numRows;
     std::vector<std::string> rows;        // content of text
+    std::vector<std::string> renders;     // content to be display on the screen
 
 
     /*** Error handling function. ***/
@@ -73,6 +74,8 @@ class Kilo {
     void refreshScreen();
     void moveCursor(int);
 
+    /***  Row Operations  ***/
+    std::string renderRow(std::string& row);
 
     /***  File IO  ***/
     void openFile(std::string& fileName);

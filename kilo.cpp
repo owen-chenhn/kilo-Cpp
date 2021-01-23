@@ -241,8 +241,8 @@ void Kilo::drawRows() {
     for (int r = 0; r < screenRows; r++) {
         int row = r + rowOffset;
         if (row < numRows) {
-            int len = rows[row].length();
-            std::cout << rows[row].substr(min(colOffset, len), screenCols);
+            int len = renders[row].length();
+            std::cout << renders[row].substr(min(colOffset, len), screenCols);
         } else if (r == screenRows / 3 && numRows == 0) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
@@ -269,6 +269,12 @@ void Kilo::refreshScreen() {
     displayCursor();
 }
 
+/***  Row Operations  ***/
+std::string renderRow(std::string& row) {
+    // get the render of input row
+    return row;
+}
+
 
 /***  File IO  ***/
 void Kilo::openFile(std::string& fileName) {
@@ -278,6 +284,7 @@ void Kilo::openFile(std::string& fileName) {
     std::string row;
     while (std::getline(infile, row)) {
         rows.push_back(row);
+        renders.push_back(renderRow(row));
         numRows++;
     }
     infile.close();
