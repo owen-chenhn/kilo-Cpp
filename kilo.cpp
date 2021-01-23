@@ -207,13 +207,15 @@ void Kilo::moveCursor(int direction) {
 }
 
 void Kilo::scroll() {
-    // set the correct value of rx
     rx = 0;
-    for (int i = 0; i < cx; i++) {
-        if (rows[cy][i] == '\t') {
-            rx += TAB_SIZE - (rx % TAB_SIZE);
-        } else {
-            rx++;
+    // set the correct value of rx
+    if (cy < numRows) {
+        for (int i = 0; i < cx; i++) {
+            if (rows[cy][i] == '\t') {
+                rx += TAB_SIZE - (rx % TAB_SIZE);
+            } else {
+                rx++;
+            }
         }
     }
 
