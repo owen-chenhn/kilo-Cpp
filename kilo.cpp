@@ -141,7 +141,6 @@ bool Kilo::processKeypress() {
         break;
     case KeyType::KEY_HOME:
     case KeyType::KEY_END:
-        // TODO: implement HOME and END key
         cx = (c == KEY_HOME) ? 0 : getRowLen();
         break;
     case KeyType::KEY_DELETE:
@@ -164,9 +163,8 @@ bool Kilo::processKeypress() {
             cx = 0;
         }
     }
+    scroll();
 
-    if (!scroll())
-        reposCursor(cx, cy);
     return flag;
 }
 
@@ -208,23 +206,35 @@ void Kilo::moveCursor(int direction) {
         cx = len;
 }
 
-bool Kilo::scroll() {
+void Kilo::scroll() {
+    // set the correct value of rx
+    rx = 0;
+    for (int i = 0; i < cx; i++) {
+        if (rows[cy][i] == '\t') {
+            rx += TAB_SIZE - (rx % TAB_SIZE);
+        } else {
+            rx++;
+        }
+    }
+
     bool flag = true;
     if (cy < rowOffset) {
         rowOffset = cy;
     } else if (cy >= rowOffset + screenRows) {
         rowOffset = cy - screenRows + 1;
-    } else if (cx < colOffset) {
-        colOffset = cx;
-    } else if (cx >= colOffset + screenCols) {
-        colOffset = cx - screenCols + 1;
+    } else if (rx < colOffset) {
+        colOffset = rx;
+    } else if (rx >= colOffset + screenCols) {
+        colOffset = rx - screenCols + 1;
     } else {
         // no scroll
         flag = false;
     }
 
-    if (flag) refreshScreen();
-    return flag;
+    if (flag) 
+        refreshScreen();
+    else 
+        reposCursor(rx, cy);
 }
 
 
@@ -267,20 +277,20 @@ void Kilo::refreshScreen() {
     clearScreen();
     reposCursor();
     drawRows();
-    reposCursor(cx, cy);
+    reposCursor(rx, cy);
     displayCursor();
 }
 
 
 /***  Row Operations  ***/
-std::string renderRow(std::string& row) {
+std::string Kilo::renderRow(std::string& row) {
     // Render tabs as multiple space characters.
     unsigned tabs = std::count(row.begin(), row.end(), '\t');
 
     std::string render;
     for (char c : row) {
         if (c == '\t') {    // render tabs as multiple space chars
-            render += std::string(8-(render.length() % 8), ' ');
+            render += std::string(TAB_SIZE-(render.length() % TAB_SIZE), ' ');
         } else {
             render += c;
         }
@@ -307,7 +317,7 @@ void Kilo::openFile(std::string& fileName) {
 
 /***  Public interface  ***/
 Kilo::Kilo(std::string& file) {
-    cx = cy = 0;
+    cx = cy = rx = 0;
     numRows = 0;
     rowOffset = colOffset = 0;
     enableRawMode();

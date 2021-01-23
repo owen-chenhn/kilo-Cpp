@@ -34,6 +34,7 @@ class Kilo {
     // Current position of the cursor in the entire file. 
     // x: horizontal position, y: vertical position. 
     int cx, cy;    
+    int rx;    // position in the render row.
 
     int rowOffset;    // row offset of the current display window.
     int colOffset; 
@@ -62,7 +63,7 @@ class Kilo {
     /***  Input Handling  ***/
     int  readKey();
     bool processKeypress();
-    bool scroll();
+    void scroll();
 
     int getRowLen() { return (cy < numRows) ? rows[cy].length() : 0; }
 
