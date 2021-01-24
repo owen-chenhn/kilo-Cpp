@@ -31,6 +31,8 @@ class Kilo {
     int screenRows;
     int screenCols;
 
+    std::string filename;
+
     // Current position of the cursor in the entire file. 
     // x: horizontal position, y: vertical position. 
     int cx, cy;    

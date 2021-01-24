@@ -221,7 +221,6 @@ void Kilo::scroll() {
         }
     }
 
-    bool flag = true;
     if (cy < rowOffset) {
         rowOffset = cy;
     } else if (cy >= rowOffset + screenRows) {
@@ -230,15 +229,7 @@ void Kilo::scroll() {
         colOffset = rx;
     } else if (rx >= colOffset + screenCols) {
         colOffset = rx - screenCols + 1;
-    } else {
-        // no scroll
-        flag = false;
     }
-
-    if (flag) 
-        refreshScreen();
-    else 
-        reposCursor(rx, cy);
 }
 
 
@@ -280,8 +271,20 @@ void Kilo::drawStatusBar() {
     std::cout << INVERT_COLOR;
 
     // draw status bar
-    std::cout << std::string(screenCols, ' ');
+    std::string status(filename);
+    if (status.length() == 0) 
+        status += "[No Name]";
+    status += " - " + std::to_string(numRows) + " lines " + 
+              std::to_string(cy+1) + '/' + std::to_string(numRows);
 
+    // trim the status text or pad with white spaces
+    if (status.length() > (unsigned) screenCols) {
+        status = status.substr(0, screenCols);
+    } else {
+        status += std::string(screenCols - status.length(), ' ');
+    }
+    
+    std::cout << status;
     std::cout << RESUME_COLOR;
 }
 
@@ -298,9 +301,6 @@ void Kilo::refreshScreen() {
 
 /***  Row Operations  ***/
 std::string Kilo::renderRow(std::string& row) {
-    // Render tabs as multiple space characters.
-    unsigned tabs = std::count(row.begin(), row.end(), '\t');
-
     std::string render;
     for (char c : row) {
         if (c == '\t') {    // render tabs as multiple space chars
@@ -316,6 +316,7 @@ std::string Kilo::renderRow(std::string& row) {
 
 /***  File IO  ***/
 void Kilo::openFile(std::string& fileName) {
+    this->filename = fileName;
     std::ifstream infile(fileName);
     if (!infile.is_open()) { die("file open failed"); }
 
@@ -342,6 +343,7 @@ Kilo::Kilo(std::string& file) {
 }
 
 void Kilo::run() {
-    refreshScreen();
-    while ( processKeypress() ) ;
+    do {
+        refreshScreen();
+    } while ( processKeypress() );
 }
