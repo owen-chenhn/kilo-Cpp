@@ -74,14 +74,14 @@ class Kilo {
 
 
     /***  Output Handling  ***/
-    void reposCursor();
-    void reposCursor(int x, int y);
+    void reposCursor(std::ostream& os=std::cout);
+    void reposCursor(int x, int y, std::ostream& os=std::cout);
     void refreshScreen();
     void moveCursor(int);
     void setStatusMessage(std::string msg);
-    void drawRows();
-    void drawStatusBar();
-    void drawMessageBar();
+    void drawRows(std::ostream& os=std::cout);
+    void drawStatusBar(std::ostream& os=std::cout);
+    void drawMessageBar(std::ostream& os=std::cout);
 
     /***  Row Operations  ***/
     std::string renderRow(std::string& row);

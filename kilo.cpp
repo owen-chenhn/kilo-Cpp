@@ -4,6 +4,7 @@
 #define _GNU_SOURCE  // feature test macros
 
 #include "kilo.h"
+#include <sstream>
 #include <fstream>
 #include <algorithm>
 #include <cctype>
@@ -28,9 +29,9 @@ static inline int min(int a, int b) { return a < b ? a : b; }
 static inline int max(int a, int b) { return a > b ? a : b; }
 
 // Clear the screen, hide and display cursor, and reposition the cursor.
-static inline void clearScreen() { std::cout << CLEAR_SCREEN; }
-static inline void hideCursor() { std::cout << HIDE_CURSOR; }
-static inline void displayCursor() { std::cout << DISPLAY_CURSOR; }
+static inline void clearScreen(std::ostream& os=std::cout) { os << CLEAR_SCREEN; }
+static inline void hideCursor(std::ostream& os=std::cout) { os << HIDE_CURSOR; }
+static inline void displayCursor(std::ostream& os=std::cout) { os << DISPLAY_CURSOR; }
 
 // welcome message
 static const std::string welcome = "Text editor Kilo - C++ version.";
@@ -135,12 +136,12 @@ bool Kilo::processKeypress() {
     case KeyType::PAGE_UP:
         cy = max((cy - screenRows + 1), 0);
         rowOffset = max((rowOffset - screenRows + 1), 0);
-        refreshScreen();
+        //refreshScreen();
         break;
     case KeyType::PAGE_DOWN:
         cy = min((cy + screenRows - 1), numRows);
-        rowOffset = min((rowOffset + screenRows - 1), (numRows - screenRows + 1));
-        refreshScreen();
+        rowOffset = min((rowOffset + screenRows - 1), max((numRows - screenRows + 1), 0));
+        //refreshScreen();
         break;
     case KeyType::KEY_HOME:
     case KeyType::KEY_END:
@@ -235,13 +236,13 @@ void Kilo::scroll() {
 
 
 /***  Output Handling  ***/
-void inline Kilo::reposCursor() { std::cout << REPOS_CURSOR; }  // position the cursor to the upper-left corner of the terminal.
+void inline Kilo::reposCursor(std::ostream& os) { os << REPOS_CURSOR; }  // position the cursor to the upper-left corner of the terminal.
 
-void inline Kilo::reposCursor(int x, int y) { 
+void inline Kilo::reposCursor(int x, int y, std::ostream& os) { 
     // position the cursor to terminal location (x, y)
-    char seqBuf[32];
-    sprintf(seqBuf, "\x1b[%d;%dH", y-rowOffset+1, x-colOffset+1);
-    std::cout << seqBuf;
+    std::string controlStr = "\x1b[" + std::to_string(y - rowOffset + 1) + ';' + 
+                             std::to_string(x - colOffset + 1) + 'H';    // "\x1b[%d;%dH"
+    os << controlStr;
 }
 
 void Kilo::setStatusMessage(std::string msg) {
@@ -249,32 +250,32 @@ void Kilo::setStatusMessage(std::string msg) {
     statusMsgTime = time(NULL);
 }
 
-void Kilo::drawRows() {
+void Kilo::drawRows(std::ostream& os) {
     // Draw tilds at the beginning of each row.
     for (int r = 0; r < screenRows; r++) {
         int row = r + rowOffset;
         if (row < numRows) {
             int len = renders[row].length();
-            std::cout << renders[row].substr(min(colOffset, len), screenCols);
+            os << renders[row].substr(min(colOffset, len), screenCols);
         } else if (r == screenRows / 3 && numRows == 0) {
             // Welcome message
             int padding = (screenCols - welcome.length()) / 2;
             if (padding) {
-                std::cout << "~";
+                os << "~";
                 padding--;
             }
-            while (padding--) std::cout << " ";
-            std::cout << "Text editor Kilo - C++ version.";
+            while (padding--) os << " ";
+            os << "Text editor Kilo - C++ version.";
         } else {
-            std::cout << "~";
+            os << "~";
         }
             
-        std::cout << "\r\n";
+        os << "\r\n";
     }
 }
 
-void Kilo::drawStatusBar() {
-    std::cout << INVERT_COLOR;
+void Kilo::drawStatusBar(std::ostream& os) {
+    os << INVERT_COLOR;
 
     // draw status bar
     std::string status(filename);
@@ -290,27 +291,31 @@ void Kilo::drawStatusBar() {
         status += std::string(screenCols - status.length(), ' ');
     }
     
-    std::cout << status;
-    std::cout << RESUME_COLOR << "\r\n";
+    os << status;
+    os << RESUME_COLOR << "\r\n";
 }
 
-void Kilo::drawMessageBar() {
-    std::cout << CLEAR_LINE;
+void Kilo::drawMessageBar(std::ostream& os) {
+    os << CLEAR_LINE;
     // print status message that is in 5 sec
     if (time(NULL) - statusMsgTime < 5) {
-        std::cout << statusMessage.substr(0, screenCols);
+        os << statusMessage.substr(0, screenCols);
     }
 }
 
 void Kilo::refreshScreen() {
-    hideCursor();
-    clearScreen();
-    reposCursor();
-    drawRows();
-    drawStatusBar();
-    drawMessageBar();
-    reposCursor(rx, cy);
-    displayCursor();
+    std::ostringstream ss;
+    hideCursor(ss);
+    clearScreen(ss);
+    reposCursor(ss);
+    drawRows(ss);
+    drawStatusBar(ss);
+    drawMessageBar(ss);
+    reposCursor(rx, cy, ss);
+    displayCursor(ss);
+
+    std::cout << ss.str();
+    std::cout.flush();
 }
 
 
