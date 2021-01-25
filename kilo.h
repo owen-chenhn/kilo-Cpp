@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <vector>
+#include <ctime>
 
 /** 
  *  The main class of the editor. 
@@ -32,6 +33,8 @@ class Kilo {
     int screenCols;
 
     std::string filename;
+    std::string statusMessage;
+    time_t statusMsgTime;    // record every timestamp when a status message is set
 
     // Current position of the cursor in the entire file. 
     // x: horizontal position, y: vertical position. 
@@ -75,8 +78,10 @@ class Kilo {
     void reposCursor(int x, int y);
     void refreshScreen();
     void moveCursor(int);
+    void setStatusMessage(std::string msg);
     void drawRows();
     void drawStatusBar();
+    void drawMessageBar();
 
     /***  Row Operations  ***/
     std::string renderRow(std::string& row);

@@ -15,6 +15,7 @@
 #define TAB_SIZE 8
 
 // escape sequences to control screen and cursor
+#define CLEAR_LINE "\x1b[K"
 #define CLEAR_SCREEN "\x1b[2J"
 #define REPOS_CURSOR "\x1b[H"
 #define HIDE_CURSOR "\x1b[?25l"
@@ -50,7 +51,7 @@ int Kilo::setWindowSize() {
     struct winsize ws;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) 
         return -1;
-    screenRows = ws.ws_row - 1;
+    screenRows = ws.ws_row - 2;
     screenCols = ws.ws_col;
     return 0;
 }
@@ -243,6 +244,11 @@ void inline Kilo::reposCursor(int x, int y) {
     std::cout << seqBuf;
 }
 
+void Kilo::setStatusMessage(std::string msg) {
+    statusMessage = msg;
+    statusMsgTime = time(NULL);
+}
+
 void Kilo::drawRows() {
     // Draw tilds at the beginning of each row.
     for (int r = 0; r < screenRows; r++) {
@@ -285,7 +291,15 @@ void Kilo::drawStatusBar() {
     }
     
     std::cout << status;
-    std::cout << RESUME_COLOR;
+    std::cout << RESUME_COLOR << "\r\n";
+}
+
+void Kilo::drawMessageBar() {
+    std::cout << CLEAR_LINE;
+    // print status message that is in 5 sec
+    if (time(NULL) - statusMsgTime < 5) {
+        std::cout << statusMessage.substr(0, screenCols);
+    }
 }
 
 void Kilo::refreshScreen() {
@@ -294,6 +308,7 @@ void Kilo::refreshScreen() {
     reposCursor();
     drawRows();
     drawStatusBar();
+    drawMessageBar();
     reposCursor(rx, cy);
     displayCursor();
 }
@@ -335,6 +350,7 @@ Kilo::Kilo(std::string& file) {
     cx = cy = rx = 0;
     numRows = 0;
     rowOffset = colOffset = 0;
+    statusMsgTime = 0;
     enableRawMode();
     if (setWindowSize() == -1) die("setWindowSize");
     
@@ -343,6 +359,8 @@ Kilo::Kilo(std::string& file) {
 }
 
 void Kilo::run() {
+    setStatusMessage("HELP: Ctrl-Q = quit");
+
     do {
         refreshScreen();
     } while ( processKeypress() );
