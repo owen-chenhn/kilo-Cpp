@@ -17,6 +17,7 @@
  */
 class Kilo {
     enum KeyType {
+        BACKSPACE = 127,
         ARROW_UP = 1000,
         ARROW_LEFT,
         ARROW_DOWN,
@@ -87,10 +88,12 @@ class Kilo {
     std::string renderRow(const std::string& row);
     void appendRow(const std::string& newRow);
     void rowInsertChar(int row, int pos, char c);
+    void rowDeleteChar(int row, int pos);
 
 
     /***  Editing Operations  ***/
     void insertChar(char c);
+    void deleteChar();
 
 
     /***  File IO  ***/

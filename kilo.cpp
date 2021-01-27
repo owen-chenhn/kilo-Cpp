@@ -125,7 +125,7 @@ bool Kilo::processKeypress() {
     switch (c) {
     case CTRL_KEY('q'):    // Ctrl-Q
         clearScreen();
-        cx = cy = 0;
+        reposCursor();
         flag = false;
         break;
 
@@ -148,7 +148,9 @@ bool Kilo::processKeypress() {
         cx = (c == KEY_HOME) ? 0 : getRowLen();
         break;
     case KeyType::KEY_DELETE:
-    case 127:
+        deleteChar();
+        break;
+    case KeyType::BACKSPACE:
         // TODO: implement DELETE key
         moveCursor(ARROW_LEFT);
         break;
@@ -156,8 +158,8 @@ bool Kilo::processKeypress() {
     default:
        insertChar(c);
     }
-    scroll();
 
+    if (flag) scroll();
     return flag;
 }
 
@@ -337,6 +339,14 @@ void Kilo::rowInsertChar(int row, int pos, char c) {
     renders[row] = renderRow(rowStr);
 }
 
+void Kilo::rowDeleteChar(int row, int pos) {
+    string &rowStr = rows[row];
+    if (pos < 0 || (unsigned) pos >= rowStr.length()) return;
+    rowStr.erase(rowStr.begin()+pos);
+    // update renders
+    renders[row] = renderRow(rowStr);
+}
+
 
 /***  Editing Operations  ***/
 void Kilo::insertChar(char c) {
@@ -346,6 +356,18 @@ void Kilo::insertChar(char c) {
     }
     rowInsertChar(cy, cx, c);
     cx++;
+}
+
+void Kilo::deleteChar() {
+    if (cy == numRows) return;
+    // delete the row if it is already empty
+    if (rows[cy].length() == 0) {
+        rows.erase(rows.begin()+cy);
+        renders.erase(renders.begin()+cy);
+        numRows--;
+    } else {
+        rowDeleteChar(cy, cx);
+    }
 }
 
 
