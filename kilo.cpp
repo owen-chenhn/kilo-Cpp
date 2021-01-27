@@ -154,8 +154,12 @@ bool Kilo::processKeypress() {
         backspaceChar();
         break;
 
+    case '\r':
+        // TODO: Enter key
+        insertChar(' ');
+        break;
     default:
-       insertChar(c);
+        insertChar(c);
     }
 
     if (flag) scroll();

@@ -49,6 +49,8 @@ class Kilo {
     std::vector<std::string> rows;        // content of text
     std::vector<std::string> renders;     // content to be display on the screen
 
+    int getRowLen() { return (cy < numRows) ? rows[cy].length() : 0; }
+
 
     /*** Error handling function. ***/
     void die(const char *str);
@@ -69,8 +71,6 @@ class Kilo {
     int  readKey();
     bool processKeypress();
     void scroll();
-
-    int getRowLen() { return (cy < numRows) ? rows[cy].length() : 0; }
 
 
     /***  Output Handling  ***/
