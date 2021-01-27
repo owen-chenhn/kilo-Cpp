@@ -24,17 +24,19 @@
 #define INVERT_COLOR "\x1b[7m"
 #define RESUME_COLOR "\x1b[m"
 
+using namespace std;
+
 // helper functions
 static inline int min(int a, int b) { return a < b ? a : b; }
 static inline int max(int a, int b) { return a > b ? a : b; }
 
 // Clear the screen, hide and display cursor, and reposition the cursor.
-static inline void clearScreen(std::ostream& os=std::cout) { os << CLEAR_SCREEN; }
-static inline void hideCursor(std::ostream& os=std::cout) { os << HIDE_CURSOR; }
-static inline void displayCursor(std::ostream& os=std::cout) { os << DISPLAY_CURSOR; }
+static inline void clearScreen(ostream& os=cout) { os << CLEAR_SCREEN; }
+static inline void hideCursor(ostream& os=cout) { os << HIDE_CURSOR; }
+static inline void displayCursor(ostream& os=cout) { os << DISPLAY_CURSOR; }
 
 // welcome message
-static const std::string welcome = "Text editor Kilo - C++ version.";
+static const string welcome = "Text editor Kilo - C++ version.";
 
 
 /***  Error handling  ***/
@@ -136,12 +138,10 @@ bool Kilo::processKeypress() {
     case KeyType::PAGE_UP:
         cy = max((cy - screenRows + 1), 0);
         rowOffset = max((rowOffset - screenRows + 1), 0);
-        //refreshScreen();
         break;
     case KeyType::PAGE_DOWN:
         cy = min((cy + screenRows - 1), numRows);
         rowOffset = min((rowOffset + screenRows - 1), max((numRows - screenRows + 1), 0));
-        //refreshScreen();
         break;
     case KeyType::KEY_HOME:
     case KeyType::KEY_END:
@@ -154,18 +154,7 @@ bool Kilo::processKeypress() {
         break;
 
     default:
-        //TODO
-        if (iscntrl(c)) {
-            std::cout << c << " ";
-        }
-        else {
-            std::cout << (char) c;
-        }
-        cx++;
-        if (cx == screenCols) {
-            cy++;
-            cx = 0;
-        }
+       insertChar(c);
     }
     scroll();
 
@@ -236,21 +225,21 @@ void Kilo::scroll() {
 
 
 /***  Output Handling  ***/
-void inline Kilo::reposCursor(std::ostream& os) { os << REPOS_CURSOR; }  // position the cursor to the upper-left corner of the terminal.
+void inline Kilo::reposCursor(ostream& os) { os << REPOS_CURSOR; }  // position the cursor to the upper-left corner of the terminal.
 
-void inline Kilo::reposCursor(int x, int y, std::ostream& os) { 
+void inline Kilo::reposCursor(int x, int y, ostream& os) { 
     // position the cursor to terminal location (x, y)
-    std::string controlStr = "\x1b[" + std::to_string(y - rowOffset + 1) + ';' + 
-                             std::to_string(x - colOffset + 1) + 'H';    // "\x1b[%d;%dH"
+    string controlStr = "\x1b[" + to_string(y - rowOffset + 1) + ';' + 
+                             to_string(x - colOffset + 1) + 'H';    // "\x1b[%d;%dH"
     os << controlStr;
 }
 
-void Kilo::setStatusMessage(std::string msg) {
+void Kilo::setStatusMessage(string msg) {
     statusMessage = msg;
     statusMsgTime = time(NULL);
 }
 
-void Kilo::drawRows(std::ostream& os) {
+void Kilo::drawRows(ostream& os) {
     // Draw tilds at the beginning of each row.
     for (int r = 0; r < screenRows; r++) {
         int row = r + rowOffset;
@@ -274,28 +263,28 @@ void Kilo::drawRows(std::ostream& os) {
     }
 }
 
-void Kilo::drawStatusBar(std::ostream& os) {
+void Kilo::drawStatusBar(ostream& os) {
     os << INVERT_COLOR;
 
     // draw status bar
-    std::string status(filename);
+    string status(filename);
     if (status.length() == 0) 
         status += "[No Name]";
-    status += " - " + std::to_string(numRows) + " lines " + 
-              std::to_string(cy+1) + '/' + std::to_string(numRows);
+    status += " - " + to_string(numRows) + " lines " + 
+              to_string(cy+1) + '/' + to_string(numRows);
 
     // trim the status text or pad with white spaces
     if (status.length() > (unsigned) screenCols) {
         status = status.substr(0, screenCols);
     } else {
-        status += std::string(screenCols - status.length(), ' ');
+        status += string(screenCols - status.length(), ' ');
     }
     
     os << status;
     os << RESUME_COLOR << "\r\n";
 }
 
-void Kilo::drawMessageBar(std::ostream& os) {
+void Kilo::drawMessageBar(ostream& os) {
     os << CLEAR_LINE;
     // print status message that is in 5 sec
     if (time(NULL) - statusMsgTime < 5) {
@@ -304,7 +293,7 @@ void Kilo::drawMessageBar(std::ostream& os) {
 }
 
 void Kilo::refreshScreen() {
-    std::ostringstream ss;
+    ostringstream ss;
     hideCursor(ss);
     clearScreen(ss);
     reposCursor(ss);
@@ -314,17 +303,17 @@ void Kilo::refreshScreen() {
     reposCursor(rx, cy, ss);
     displayCursor(ss);
 
-    std::cout << ss.str();
-    std::cout.flush();
+    cout << ss.str();
+    cout.flush();
 }
 
 
 /***  Row Operations  ***/
-std::string Kilo::renderRow(std::string& row) {
-    std::string render;
+string Kilo::renderRow(const string& row) {
+    string render;
     for (char c : row) {
         if (c == '\t') {    // render tabs as multiple space chars
-            render += std::string(TAB_SIZE-(render.length() % TAB_SIZE), ' ');
+            render += string(TAB_SIZE-(render.length() % TAB_SIZE), ' ');
         } else {
             render += c;
         }
@@ -333,25 +322,49 @@ std::string Kilo::renderRow(std::string& row) {
     return render;
 }
 
+void Kilo::appendRow(const string& newRow=string()) {
+    // append a new row to the editor.
+    rows.push_back(newRow);
+    renders.push_back(renderRow(newRow));
+    numRows++;
+}
+
+void Kilo::rowInsertChar(int row, int pos, char c) {
+    string &rowStr = rows[row];
+    if (pos < 0 || (unsigned) pos > rowStr.length()) pos = rowStr.length();
+    rowStr.insert(rowStr.begin()+pos, c);
+    // update renders
+    renders[row] = renderRow(rowStr);
+}
+
+
+/***  Editing Operations  ***/
+void Kilo::insertChar(char c) {
+    // insert a char at current position (cx, cy)
+    if (cy == numRows) {
+        appendRow();
+    }
+    rowInsertChar(cy, cx, c);
+    cx++;
+}
+
 
 /***  File IO  ***/
-void Kilo::openFile(std::string& fileName) {
+void Kilo::openFile(string& fileName) {
     this->filename = fileName;
-    std::ifstream infile(fileName);
+    ifstream infile(fileName);
     if (!infile.is_open()) { die("file open failed"); }
 
-    std::string row;
-    while (std::getline(infile, row)) {
-        rows.push_back(row);
-        renders.push_back(renderRow(row));
-        numRows++;
+    string row;
+    while (getline(infile, row)) {
+        appendRow(row);
     }
     infile.close();
 }
 
 
 /***  Public interface  ***/
-Kilo::Kilo(std::string& file) {
+Kilo::Kilo(string& file) {
     cx = cy = rx = 0;
     numRows = 0;
     rowOffset = colOffset = 0;

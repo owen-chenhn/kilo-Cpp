@@ -56,7 +56,6 @@ class Kilo {
     /***  Terminal setup  ***/
     int setWindowSize();
 
-
     // Turn on/off Raw Mode of terminal.
     void enableRawMode();
     void disableRawMode() {
@@ -83,8 +82,16 @@ class Kilo {
     void drawStatusBar(std::ostream& os=std::cout);
     void drawMessageBar(std::ostream& os=std::cout);
 
+
     /***  Row Operations  ***/
-    std::string renderRow(std::string& row);
+    std::string renderRow(const std::string& row);
+    void appendRow(const std::string& newRow);
+    void rowInsertChar(int row, int pos, char c);
+
+
+    /***  Editing Operations  ***/
+    void insertChar(char c);
+
 
     /***  File IO  ***/
     void openFile(std::string& fileName);
