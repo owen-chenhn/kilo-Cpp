@@ -94,6 +94,7 @@ class Kilo {
     /***  Editing Operations  ***/
     void insertChar(char c);
     void deleteChar();
+    void backspaceChar();    // Use Backspace key to delete a char.
 
 
     /***  File IO  ***/

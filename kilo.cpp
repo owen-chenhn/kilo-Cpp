@@ -151,8 +151,7 @@ bool Kilo::processKeypress() {
         deleteChar();
         break;
     case KeyType::BACKSPACE:
-        // TODO: implement DELETE key
-        moveCursor(ARROW_LEFT);
+        backspaceChar();
         break;
 
     default:
@@ -367,6 +366,13 @@ void Kilo::deleteChar() {
         numRows--;
     } else {
         rowDeleteChar(cy, cx);
+    }
+}
+
+void Kilo::backspaceChar() {
+    if (cy != numRows && cx != 0) {
+        rowDeleteChar(cy, cx-1);
+        cx--;
     }
 }
 
