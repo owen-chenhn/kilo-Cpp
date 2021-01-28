@@ -120,7 +120,7 @@ int Kilo::readKey() {
 
 bool Kilo::processKeypress() {
     int c = readKey();
-    bool flag = true, modified = false;
+    bool flag = true;
 
     switch (c) {
     case CTRL_KEY('q'):    // Ctrl-Q
@@ -175,7 +175,6 @@ bool Kilo::processKeypress() {
     }
 
     if (flag) scroll();
-    if (modified) setStatusMessage("File unsaved.");
     return flag;
 }
 
@@ -286,8 +285,8 @@ void Kilo::drawStatusBar(ostream& os) {
 
     // draw status bar
     string status(filename);
-    if (status.length() == 0) 
-        status += "[No Name]";
+    if (status.length() == 0) status += "[No Name]";
+    if (modified) status += " (modified)";
     status += " - " + to_string(numRows) + " lines " + 
               to_string(cy+1) + '/' + to_string(numRows);
 
@@ -424,6 +423,7 @@ void Kilo::saveToFile() {
     outfile << os.str();
     setStatusMessage("File saved.");
     outfile.close();
+    modified = false;
 }
 
 
@@ -433,6 +433,7 @@ Kilo::Kilo(string& file) {
     numRows = 0;
     rowOffset = colOffset = 0;
     statusMsgTime = 0;
+    modified = false;
     enableRawMode();
     if (setWindowSize() == -1) die("setWindowSize");
     

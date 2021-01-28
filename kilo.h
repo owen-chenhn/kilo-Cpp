@@ -44,6 +44,7 @@ class Kilo {
 
     int rowOffset;    // row offset of the current display window.
     int colOffset; 
+    bool modified;    // whether the content has been modified (dirty).
     // text data
     int numRows;
     std::vector<std::string> rows;        // content of text
