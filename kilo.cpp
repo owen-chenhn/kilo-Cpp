@@ -150,14 +150,19 @@ bool Kilo::processKeypress() {
     case KeyType::KEY_DELETE:
         deleteChar();
         break;
+    case CTRL_KEY('h'):
     case KeyType::BACKSPACE:
         backspaceChar();
         break;
-
     case '\r':
         // TODO: Enter key
         insertChar(' ');
         break;
+    case CTRL_KEY('l'):
+    case '\x1b':
+        // Escape Key: do nothing
+        break;
+
     default:
         insertChar(c);
     }
