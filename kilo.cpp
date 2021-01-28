@@ -120,7 +120,7 @@ int Kilo::readKey() {
 
 bool Kilo::processKeypress() {
     int c = readKey();
-    bool flag = true;
+    bool flag = true, modified = false;
 
     switch (c) {
     case CTRL_KEY('q'):    // Ctrl-Q
@@ -149,14 +149,17 @@ bool Kilo::processKeypress() {
         break;
     case KeyType::KEY_DELETE:
         deleteChar();
+        modified = true;
         break;
     case CTRL_KEY('h'):
     case KeyType::BACKSPACE:
         backspaceChar();
+        modified = true;
         break;
     case '\r':
         // TODO: Enter key
         insertChar(' ');
+        modified = true;
         break;
     case CTRL_KEY('s'):
         saveToFile();   // save content to the file
@@ -168,9 +171,11 @@ bool Kilo::processKeypress() {
 
     default:
         insertChar(c);
+        modified = true;
     }
 
     if (flag) scroll();
+    if (modified) setStatusMessage("File unsaved.");
     return flag;
 }
 
@@ -413,7 +418,11 @@ void Kilo::saveToFile() {
         os << s << endl;
     }
     ofstream outfile(filename);
+    if (!outfile) {
+        setStatusMessage("IO error: save to file failed.");
+    }
     outfile << os.str();
+    setStatusMessage("File saved.");
     outfile.close();
 }
 
@@ -432,7 +441,7 @@ Kilo::Kilo(string& file) {
 }
 
 void Kilo::run() {
-    setStatusMessage("HELP: Ctrl-Q = quit | Ctrl-S = save");
+    setStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit");
 
     do {
         refreshScreen();
