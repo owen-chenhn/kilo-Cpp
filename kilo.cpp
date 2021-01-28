@@ -158,6 +158,9 @@ bool Kilo::processKeypress() {
         // TODO: Enter key
         insertChar(' ');
         break;
+    case CTRL_KEY('s'):
+        saveToFile();   // save content to the file
+        break;
     case CTRL_KEY('l'):
     case '\x1b':
         // Escape Key: do nothing
@@ -399,6 +402,21 @@ void Kilo::openFile(string& fileName) {
     infile.close();
 }
 
+void Kilo::saveToFile() {
+    if (filename.length() == 0) {
+        // TODO
+        return;
+    }
+
+    ostringstream os;
+    for (string& s: rows) {
+        os << s << endl;
+    }
+    ofstream outfile(filename);
+    outfile << os.str();
+    outfile.close();
+}
+
 
 /***  Public interface  ***/
 Kilo::Kilo(string& file) {
@@ -414,7 +432,7 @@ Kilo::Kilo(string& file) {
 }
 
 void Kilo::run() {
-    setStatusMessage("HELP: Ctrl-Q = quit");
+    setStatusMessage("HELP: Ctrl-Q = quit | Ctrl-S = save");
 
     do {
         refreshScreen();

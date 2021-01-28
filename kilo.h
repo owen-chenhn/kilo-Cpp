@@ -99,6 +99,7 @@ class Kilo {
 
     /***  File IO  ***/
     void openFile(std::string& fileName);
+    void saveToFile();
 
 public:
     Kilo(std::string& file);
