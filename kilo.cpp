@@ -14,6 +14,7 @@
 
 #define CTRL_KEY(c) ((c) & 0x1f)
 #define TAB_SIZE 8
+#define QUIT_TIMES 3
 
 // escape sequences to control screen and cursor
 #define CLEAR_LINE "\x1b[K"
@@ -119,11 +120,20 @@ int Kilo::readKey() {
 }
 
 bool Kilo::processKeypress() {
+    static int quit = QUIT_TIMES;
+
     int c = readKey();
     bool flag = true;
 
     switch (c) {
     case CTRL_KEY('q'):    // Ctrl-Q
+        if (modified && quit > 0) {
+            string msg("Warning: file modified and unsaved. Please press Ctrl-Q ");
+            msg += to_string(quit) + " more times to quit.";
+            setStatusMessage(msg);
+            quit--;
+            return flag;
+        }
         clearScreen();
         reposCursor();
         flag = false;
@@ -174,6 +184,7 @@ bool Kilo::processKeypress() {
         modified = true;
     }
 
+    quit = QUIT_TIMES;
     if (flag) scroll();
     return flag;
 }
