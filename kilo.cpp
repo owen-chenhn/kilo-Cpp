@@ -262,6 +262,8 @@ string Kilo::promptInput(string prompt) {
         c = readKey();
         if (!iscntrl(c) && c < 128) {
             input.push_back(c);
+        } else if (c == KeyType::BACKSPACE && input.length() > 0) {
+            input.pop_back();
         } else if (c == '\x1b') {
             //Escape key: abort the saving.
             input.clear();
