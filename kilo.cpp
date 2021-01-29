@@ -173,6 +173,7 @@ bool Kilo::processKeypress() {
         break;
     case CTRL_KEY('s'):
         saveToFile();   // save content to the file
+        modified = false;   // reset dirty flag
         break;
     case CTRL_KEY('l'):
     case '\x1b':
@@ -357,6 +358,15 @@ void Kilo::appendRow(const string& newRow=string()) {
     numRows++;
 }
 
+void Kilo::removeRow(int y) {
+    if (numRows == 0 || y < 0 || y >= numRows) 
+        return;
+
+    rows.erase(rows.begin() + y);
+    renders.erase(renders.begin() + y);
+    numRows--;
+}
+
 void Kilo::rowInsertChar(int row, int pos, char c) {
     string &rowStr = rows[row];
     if (pos < 0 || (unsigned) pos > rowStr.length()) pos = rowStr.length();
@@ -388,18 +398,27 @@ void Kilo::deleteChar() {
     if (cy == numRows) return;
     // delete the row if it is already empty
     if (rows[cy].length() == 0) {
-        rows.erase(rows.begin()+cy);
-        renders.erase(renders.begin()+cy);
-        numRows--;
+        removeRow(cy);
     } else {
         rowDeleteChar(cy, cx);
     }
 }
 
 void Kilo::backspaceChar() {
-    if (cy != numRows && cx != 0) {
+    if (cy == numRows) return;
+    if (cx == 0 && cy == 0) return;
+
+    if (cx > 0) {
         rowDeleteChar(cy, cx-1);
         cx--;
+    } else {
+        // append the row to the previous row and delete it.
+        cx = rows[cy-1].length();
+        rows[cy-1].append(rows[cy]);
+        renders[cy-1] = renderRow(rows[cy-1]);
+        removeRow(cy);
+        // repos cursor
+        cy--;
     }
 }
 
@@ -434,7 +453,6 @@ void Kilo::saveToFile() {
     outfile << os.str();
     setStatusMessage("File saved.");
     outfile.close();
-    modified = false;
 }
 
 
