@@ -262,10 +262,16 @@ string Kilo::promptInput(string prompt) {
         c = readKey();
         if (!iscntrl(c) && c < 128) {
             input.push_back(c);
+        } else if (c == '\x1b') {
+            //Escape key: abort the saving.
+            input.clear();
+            break;
         } else if (c == '\r' && input.length() > 0) {
-            return input;
+            break;
         }
     }
+
+    return input;
 }
 
 
@@ -467,6 +473,10 @@ static const string filenamePrompt = "Save as (file name): ";
 void Kilo::saveToFile() {
     if (filename.length() == 0) {
         filename = promptInput(filenamePrompt);
+        if (filename.length() == 0) {
+            setStatusMessage("Save aborted.");
+            return;
+        }
     }
 
     ostringstream os;
