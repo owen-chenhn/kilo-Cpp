@@ -96,6 +96,7 @@ class Kilo {
     /***  Editing Operations  ***/
     void insertChar(char c);
     void deleteChar();
+    void insertNewLine();
 
 
     /***  File IO  ***/

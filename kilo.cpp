@@ -165,8 +165,8 @@ bool Kilo::processKeypress() {
         deleteChar();
         modified = true;
         break;
-    case '\r':  // TODO: Enter key
-        insertChar(' ');
+    case '\r':  // Enter key
+        insertNewLine();
         modified = true;
         break;
     case CTRL_KEY('s'):
@@ -414,6 +414,19 @@ void Kilo::deleteChar() {
         removeRow(cy);
         // repos cursor
         cy--;
+    }
+}
+
+void Kilo::insertNewLine() {
+    if (cy < numRows) {
+        insertRow(cy+1, rows[cy].substr(cx));
+        rows[cy].erase(cx);
+        renders[cy] = renderRow(rows[cy]);
+        cy++;
+        cx = 0;
+    } else {
+        // insert an empty row.
+        insertRow(cy);
     }
 }
 
