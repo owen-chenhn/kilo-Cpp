@@ -435,13 +435,13 @@ void Kilo::insertNewLine() {
 void Kilo::openFile(string& fileName) {
     this->filename = fileName;
     ifstream infile(fileName);
-    if (!infile.is_open()) { die("file open failed"); }
-
-    string row;
-    while (getline(infile, row)) {
-        insertRow(numRows, row);
+    if (infile.is_open()) { 
+        string row;
+        while (getline(infile, row)) {
+            insertRow(numRows, row);
+        }
+        infile.close();
     }
-    infile.close();
 }
 
 void Kilo::saveToFile() {
