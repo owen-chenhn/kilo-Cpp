@@ -250,6 +250,24 @@ void Kilo::scroll() {
     }
 }
 
+string Kilo::promptInput(string prompt) {
+    // prompt for user input
+    string input;
+    int c;
+
+    while (1) {
+        setStatusMessage(prompt + input);
+        refreshScreen();
+
+        c = readKey();
+        if (!iscntrl(c) && c < 128) {
+            input.push_back(c);
+        } else if (c == '\r' && input.length() > 0) {
+            return input;
+        }
+    }
+}
+
 
 /***  Output Handling  ***/
 void inline Kilo::reposCursor(ostream& os) { os << REPOS_CURSOR; }  // position the cursor to the upper-left corner of the terminal.
@@ -444,10 +462,11 @@ void Kilo::openFile(string& fileName) {
     }
 }
 
+static const string filenamePrompt = "Save as (file name): ";
+
 void Kilo::saveToFile() {
     if (filename.length() == 0) {
-        // TODO
-        return;
+        filename = promptInput(filenamePrompt);
     }
 
     ostringstream os;

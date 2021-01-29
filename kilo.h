@@ -72,6 +72,7 @@ class Kilo {
     int  readKey();
     bool processKeypress();
     void scroll();
+    std::string promptInput(std::string);
 
 
     /***  Output Handling  ***/
