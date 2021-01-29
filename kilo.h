@@ -87,7 +87,7 @@ class Kilo {
 
     /***  Row Operations  ***/
     std::string renderRow(const std::string& row);
-    void appendRow(const std::string& newRow);
+    void insertRow(int y, const std::string& newRow);
     void removeRow(int y);
     void rowInsertChar(int row, int pos, char c);
     void rowDeleteChar(int row, int pos);

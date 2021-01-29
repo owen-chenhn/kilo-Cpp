@@ -349,10 +349,11 @@ string Kilo::renderRow(const string& row) {
     return render;
 }
 
-void Kilo::appendRow(const string& newRow=string()) {
-    // append a new row to the editor.
-    rows.push_back(newRow);
-    renders.push_back(renderRow(newRow));
+void Kilo::insertRow(int y, const string& newRow=string()) {
+    // insert a new row to the editor.
+    if (y < 0 || y > numRows) y = numRows;
+    rows.insert(rows.begin() + y, newRow);
+    renders.insert(renders.begin() + y, renderRow(newRow));
     numRows++;
 }
 
@@ -386,14 +387,20 @@ void Kilo::rowDeleteChar(int row, int pos) {
 void Kilo::insertChar(char c) {
     // insert a char at current position (cx, cy)
     if (cy == numRows) {
-        appendRow();
+        insertRow(cy);
     }
     rowInsertChar(cy, cx, c);
     cx++;
 }
 
 void Kilo::deleteChar() {
-    if (cy == numRows) return;
+    if (cy == numRows) {
+        if (cy - 1 >= 0 && rows[cy-1].length() == 0) {
+            cy--;
+            removeRow(cy);
+        }
+        return;
+    }
     if (cx == 0 && cy == 0) return;
 
     if (cx > 0) {
@@ -419,7 +426,7 @@ void Kilo::openFile(string& fileName) {
 
     string row;
     while (getline(infile, row)) {
-        appendRow(row);
+        insertRow(numRows, row);
     }
     infile.close();
 }
